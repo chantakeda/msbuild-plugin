@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -40,6 +41,7 @@ import java.util.regex.Pattern;
 public class MsBuildConsoleParser extends LineTransformationOutputStream {
     private final OutputStream out;
     private final Charset charset;
+    private final Charset sjis = Charset.forName("windows-31j");
 
     private int numberOfWarnings = -1;
     private int numberOfErrors = -1;
@@ -60,6 +62,7 @@ public class MsBuildConsoleParser extends LineTransformationOutputStream {
     @Override
     protected void eol(byte[] b, int len) throws IOException {
         String line = charset.decode(ByteBuffer.wrap(b, 0, len)).toString();
+        //line = StandardCharsets.UTF_8.decode(ByteBuffer.wrap(b, 0, len)).toString();
 
         // trim off CR/LF from the end
         line = trimEOL(line);
@@ -87,7 +90,8 @@ public class MsBuildConsoleParser extends LineTransformationOutputStream {
         }
 
         // Write to output
-        out.write(b, 0, len);
+        //out.write(b, 0, len);
+        out.write(sjis.decode(ByteBuffer.wrap(b, 0, len)).toString().getBytes(StandardCharsets.UTF_8));
     }
 
     @Override
